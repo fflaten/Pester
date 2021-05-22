@@ -262,6 +262,52 @@ i -PassThru:$PassThru {
             $xmlResult.Schemas.Add($null, $schemePath) > $null
             $xmlResult.Validate( { throw $args[1].Exception })
         }
+
+        t "writes tags as categories" {
+            $sb = {
+                Describe "Describe #1" -Tag 'Critical', 'Demo' {
+                    Context "Context1" -Tag 'Slow' {
+                        It "without tags" {
+                            $true | Should -Be $true
+                        }
+                    }
+                    Context "Context2" {
+                        It "with tags" -Tag 'Good' {
+                            $true | Should -Be $true
+                        }
+                    }
+                }
+
+                Describe "Describe #2" {
+                    It "another testcase" {
+                        $true | Should -Be $true
+                    }
+                }
+            }
+
+            $r = Invoke-Pester -Configuration ([PesterConfiguration]@{
+                    Run    = @{ ScriptBlock = $sb; PassThru = $true };
+                    Output = @{ Verbosity = 'None' }
+                })
+
+            $xmlResult = $r | ConvertTo-NUnitReport
+
+            $xmlSuitesDescribe = @($xmlResult.'test-results'.'test-suite'.'results'.'test-suite'.'results'.'test-suite')
+            $xmlSuitesDescribe.Count | Verify-Equal 2
+
+            $xmlSuitesDescribe[0].'categories'.'category'.Count | Verify-Equal 2
+            $xmlSuitesDescribe[0].'categories'.'category'.name[0] | Verify-Equal 'Critical'
+            $xmlSuitesDescribe[0].'categories'.'category'.name[1] | Verify-Equal 'Demo'
+
+            $xmlSuitesDescribe[0].'results'.'test-suite'[0].'categories'.'category'.name | Verify-Equal 'Slow'
+            $xmlSuitesDescribe[0].'results'.'test-suite'[0].'results'.'test-case'.'categories' | Verify-Null
+
+            $xmlSuitesDescribe[0].'results'.'test-suite'[1].'categories' | Verify-Null
+            $xmlSuitesDescribe[0].'results'.'test-suite'[1].'results'.'test-case'.'categories'.'category'.name | Verify-Equal 'Good'
+
+            $xmlSuitesDescribe[1].'categories' | Verify-Null
+            $xmlSuitesDescribe[1].'results'.'test-case'.'categories' | Verify-Null
+        }
     }
 
     b 'Exporting Parameterized Tests (Newer format)' {

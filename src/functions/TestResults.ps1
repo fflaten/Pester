@@ -374,12 +374,27 @@ function Write-NUnitCultureInformation($Result, [System.Xml.XmlWriter] $XmlWrite
     $XmlWriter.WriteEndElement()
 }
 
+function Write-NUnitCategories($Node, [System.Xml.XmlWriter] $XmlWriter) {
+    $XmlWriter.WriteStartElement('categories')
+
+    foreach ($tag in $Node.Tag) {
+        $XmlWriter.WriteStartElement('category')
+        $XmlWriter.WriteAttributeString('name', $tag)
+        $XmlWriter.WriteEndElement()
+    }
+
+    $XmlWriter.WriteEndElement()
+}
+
 function Write-NUnitTestSuiteElements($Node, [System.Xml.XmlWriter] $XmlWriter, [string] $Path) {
     $suiteInfo = Get-TestSuiteInfo -TestSuite $Node -Path $Path
 
     $XmlWriter.WriteStartElement('test-suite')
 
     Write-NUnitTestSuiteAttributes -TestSuiteInfo $suiteInfo -XmlWriter $XmlWriter
+    if ($Node -is [Pester.Block] -and $Node.Tag) {
+        Write-NUnitCategories -Node $Node -XmlWriter $XmlWriter
+    }
 
     $XmlWriter.WriteStartElement('results')
 
@@ -828,12 +843,16 @@ function Write-NUnitTestCaseAttributes($TestResult, [System.Xml.XmlWriter] $XmlW
             $XmlWriter.WriteAttributeString('result', 'Success')
             $XmlWriter.WriteAttributeString('executed', 'True')
 
+            if ($TestResult.Tag) { Write-NUnitCategories -Node $TestResult -XmlWriter $XmlWriter }
+
             break
         }
 
         Skipped {
             $XmlWriter.WriteAttributeString('result', 'Ignored')
             $XmlWriter.WriteAttributeString('executed', 'False')
+
+            if ($TestResult.Tag) { Write-NUnitCategories -Node $TestResult -XmlWriter $XmlWriter }
 
             if ($TestResult.FailureMessage) {
                 $XmlWriter.WriteStartElement('reason')
@@ -848,6 +867,8 @@ function Write-NUnitTestCaseAttributes($TestResult, [System.Xml.XmlWriter] $XmlW
             $XmlWriter.WriteAttributeString('result', 'Inconclusive')
             $XmlWriter.WriteAttributeString('executed', 'True')
 
+            if ($TestResult.Tag) { Write-NUnitCategories -Node $TestResult -XmlWriter $XmlWriter }
+
             if ($TestResult.FailureMessage) {
                 $XmlWriter.WriteStartElement('reason')
                 $xmlWriter.WriteElementString('message', $TestResult.FailureMessage)
@@ -861,6 +882,8 @@ function Write-NUnitTestCaseAttributes($TestResult, [System.Xml.XmlWriter] $XmlW
             $XmlWriter.WriteAttributeString('result', 'Inconclusive')
             $XmlWriter.WriteAttributeString('executed', 'True')
 
+            if ($TestResult.Tag) { Write-NUnitCategories -Node $TestResult -XmlWriter $XmlWriter }
+
             if ($TestResult.FailureMessage) {
                 $XmlWriter.WriteStartElement('reason')
                 $xmlWriter.WriteElementString('message', $TestResult.DisplayErrorMessage)
@@ -872,6 +895,9 @@ function Write-NUnitTestCaseAttributes($TestResult, [System.Xml.XmlWriter] $XmlW
         Failed {
             $XmlWriter.WriteAttributeString('result', 'Failure')
             $XmlWriter.WriteAttributeString('executed', 'True')
+
+            if ($TestResult.Tag) { Write-NUnitCategories -Node $TestResult -XmlWriter $XmlWriter }
+
             $XmlWriter.WriteStartElement('failure')
 
             # TODO: remove monkey patching the error message when parent setup failed so this test never run
