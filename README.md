@@ -1,4 +1,4 @@
-# Pester
+# Pester 5
 
 > 💵 I am spending most of my weekends making this happen. These release notes for example took multiple days to write and update. Consider sponsoring [me](https://github.com/sponsors/nohwnd) or sponsoring [Pester](https://opencollective.com/pester), please.
 
