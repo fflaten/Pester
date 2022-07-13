@@ -31,6 +31,8 @@ jobs:
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
+          Import-Module ConvertToSARIF -Force
+          
           Get-ChildItem -Path ./src/ -Filter *.ps1 -Recurse |
           Invoke-ScriptAnalyzer -Settings ./PSScriptAnalyzerSettings.psd1 |
           ConvertTo-SARIF -FilePath results.sarif
