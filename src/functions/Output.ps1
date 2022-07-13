@@ -90,7 +90,8 @@ function Format-PesterPath ($Path, [String]$Delimiter) {
 function Write-PesterStart {
     param(
         [Parameter(mandatory = $true, valueFromPipeline = $true)]
-        $Context
+        $Context,
+        $abc
     )
     process {
         # if (-not ( $Context.Show | Has-Flag 'All, Fails, Header')) {
@@ -135,6 +136,9 @@ function Write-PesterStart {
     }
 }
 
+function mynewFunctions {
+   write-host "omg"
+}
 
 function ConvertTo-PesterResult {
     param(
