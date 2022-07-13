@@ -15,9 +15,18 @@ jobs:
       contents: read
       security-events: write
     steps:
-        # Checkout the repository to the GitHub Actions runner
+      # Checkout the repository to the GitHub Actions runner
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+          
+      - name: Build Pester
+        shell: pwsh
+        run: ./build.ps1 -Clean
 
       - name: PowerShell Module Cache
         uses: potatoqualitee/psmodulecache@v4.5
@@ -26,6 +35,7 @@ jobs:
           modules-to-cache: PSScriptAnalyzer, ConvertToSARIF
           allow-prerelease: false
 
+      # Running scan against source to get links to source-files
       - name: Run PSScriptAnalyzer
         uses: microsoft/psscriptanalyzer-action@v1.0
         with:
