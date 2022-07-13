@@ -14,7 +14,7 @@ jobs:
     env:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_GENERATE_ASPNET_CERTIFICATE: 0
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: false
     permissions:
       actions: read
       contents: read
@@ -31,7 +31,7 @@ jobs:
           
       - name: Build Pester
         shell: pwsh
-        run: ./build.ps1 -Clean
+        run: ./build.ps1 -Clean -Inline
 
       - name: PowerShell Module Cache
         uses: potatoqualitee/psmodulecache@v4.5
