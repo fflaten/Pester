@@ -137,7 +137,7 @@ function Write-PesterStart {
 }
 
 function mynewFunctions {
-   write-host "omg"
+   write-verbose "omg"
 }
 
 function ConvertTo-PesterResult {
