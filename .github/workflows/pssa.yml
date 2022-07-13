@@ -29,7 +29,8 @@ jobs:
       - name: Run PSScriptAnalyzer
         uses: microsoft/psscriptanalyzer-action@v1.0
         with:
-          path: .\
+          path: .\src
+          settings: .\PSScriptAnalyzerSettings.psd1
           recurse: true 
           output: results.sarif
       
