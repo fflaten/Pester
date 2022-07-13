@@ -11,10 +11,6 @@ jobs:
     
     name: PSScriptAnalyzer Scan
     runs-on: windows-latest
-    env:
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-      DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_GENERATE_ASPNET_CERTIFICATE: false
     permissions:
       actions: read
       contents: read
@@ -24,15 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: 6.0.x
-          
-      - name: Build Pester
-        shell: pwsh
-        run: ./build.ps1 -Clean -Inline
-
       - name: PowerShell Module Cache
         uses: potatoqualitee/psmodulecache@v4.5
         with:
@@ -40,14 +27,14 @@ jobs:
           modules-to-cache: PSScriptAnalyzer, ConvertToSARIF
           allow-prerelease: false
 
+      # Not using microsoft/psscriptanalyzer-action@v1.0 because we're missing psm1 in src and need to exclude generated ps1xml
       - name: Run PSScriptAnalyzer
-        uses: microsoft/psscriptanalyzer-action@v1.0
-        with:
-          path: .\bin
-          settings: .\PSScriptAnalyzerSettings.psd1
-          recurse: true 
-          output: results.sarif
-      
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path ./src/ -Filter *.ps1 -Recurse |
+          Invoke-ScriptAnalyzer -Settings ./PSScriptAnalyzerSettings.psd1 |
+          ConvertTo-SARIF -FilePath results.sarif
+
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v2
