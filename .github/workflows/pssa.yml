@@ -8,8 +8,13 @@ on:
     
 jobs:
   analyze:
+    
     name: PSScriptAnalyzer Scan
     runs-on: windows-latest
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: 0
     permissions:
       actions: read
       contents: read
@@ -35,11 +40,10 @@ jobs:
           modules-to-cache: PSScriptAnalyzer, ConvertToSARIF
           allow-prerelease: false
 
-      # Running scan against source to get links to source-files
       - name: Run PSScriptAnalyzer
         uses: microsoft/psscriptanalyzer-action@v1.0
         with:
-          path: .\src
+          path: .\bin
           settings: .\PSScriptAnalyzerSettings.psd1
           recurse: true 
           output: results.sarif
