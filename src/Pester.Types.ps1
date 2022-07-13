@@ -12,6 +12,8 @@ if ($null -ne $configurationType) {
     }
 }
 
+$mynewVar = 123
+
 if ($PSVersionTable.PSVersion.Major -ge 6) {
     $path = "$PSScriptRoot/bin/netstandard2.0/Pester.dll"
     # PESTER_BUILD
