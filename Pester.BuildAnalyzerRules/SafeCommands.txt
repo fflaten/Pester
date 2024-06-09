@@ -16,7 +16,6 @@ Get-Item
 Get-ItemProperty
 Get-Location
 Get-Member
-Get-MockDynamicParameter
 Get-Module
 Get-PSCallStack
 Get-PSDrive
